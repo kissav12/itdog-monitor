@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ItDog 状态监控</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #f4f4f4; color: #222; }
+    .dark { background: #1e1e1e; color: #ddd; }
+    .summary { margin-bottom: 1rem; }
+    .record { border-bottom: 1px solid #ccc; padding: 0.5rem 0; }
+    .fail { color: red; }
+    .ok { color: green; }
+    button { margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <h1>ItDog 状态监控</h1>
+  <div class="summary">
+    <span id="summary"></span>
+    <button onclick="toggleDark()">切换暗黑模式</button>
+  </div>
+  <div id="records">加载中...</div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/itdog-monitor");
+        const json = await res.json();
+        const container = document.getElementById("records");
+        container.innerHTML = "";
+        let fail = json.failures;
+        let total = json.total;
+        document.getElementById("summary").textContent = 
+          `共检测 ${total} 次，失败 ${fail} 次，可用率 ${((1 - fail / total) * 100).toFixed(2)}%`;
+        json.history.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "record";
+          div.innerHTML = `<span>${item.time}</span> - 
+            <span class="${item.fail ? 'fail' : 'ok'}">
+              ${item.fail ? '失败' : '正常'}
+            </span> - 失败数: ${item.fail}`;
+          container.appendChild(div);
+        });
+      } catch (e) {
+        document.getElementById("records").textContent = "获取失败：" + e;
+      }
+    }
+
+    function toggleDark() {
+      document.body.classList.toggle("dark");
+    }
+
+    fetchData();
+    setInterval(fetchData, 300000); // 每 5 分钟刷新
+  </script>
+</body>
+</html>
