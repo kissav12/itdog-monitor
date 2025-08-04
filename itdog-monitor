@@ -1,0 +1,7 @@
+📁 itdog-monitor
+├── public/
+│   └── index.html            # 展示监控结果的前端页面
+├── api/
+│   └── itdog-monitor.js      # 用于获取 itdog.cn 数据的 API 路由（支持定时执行）
+├── vercel.json               # Vercel 配置文件，包含定时任务（Cron）
+└── README.md                 # 项目说明文档
